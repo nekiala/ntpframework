@@ -1,0 +1,33 @@
+{
+  "directories": {
+    "config_directory": "cfg",
+    "application_directory": "config_directory|app",
+    "views_directory": "views",
+    "upload_directory": "views_directory|storage",
+    "services_directory": "application_directory|services",
+    "controllers_directory": "controllers",
+    "models_directory": "models",
+    "log_directory": "config_directory|logs",
+    "database_string_directory": "application_directory|db",
+    "models_namespace" : "models\\",
+    "services_namespace" : "application_directory|services\\",
+    "controllers_namespace": "controllers\\",
+    "managers_namespace": "models_directory|manager\\",
+    "routing_directory": "config_directory|routing"
+  },
+  "files": {
+    "application_file": "config_directory|application_config.json",
+    "log_file": "log_directory|log",
+    "modules_file": "application_directory|modules.json",
+    "service_descriptor_file": "services_directory|descriptor.json",
+    "database_string_file": "database_string_directory|db_str.json",
+    "sql_log_file": "log_directory|sql_log.log",
+    "translation_file": "config_directory|general_translation.json"
+  },
+  "prefixes": {
+    "comment": "first time added on 10/07/2019 20:34",
+    "manager_prefix": "Manager",
+    "action_prefix": "Action",
+    "controller_prefix": "Controller"
+  }
+}

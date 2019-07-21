@@ -1,0 +1,17 @@
+{% extends "layouts/template.html.twig" %}
+
+{% block body %}
+
+    <div id="content">
+        <div class="row">
+            <div class="page-header">
+                <h2>Page introuvable<span class="loader pull-right">{{ loader()|raw }}</h2>
+            </div>
+
+            <p class="alert alert-info">
+                La page que vous cherchez n'existe plus.
+            </p>
+        </div>
+    </div>
+
+{% endblock %}

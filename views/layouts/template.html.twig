@@ -1,0 +1,119 @@
+<!--
+Kiala Ntona (@nekiala),
+DWC Business Developer
+NtoProg(c) Manager
+https://ntoprog.org
+..............................
+kiala@ntoprog.org
+...............................
+(c) NtoProg(c), Alright reserved
+NtoProg, NTP Framework and NTP logo are NtoProg trademarks
+contact@ntoprog.org
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{{ appname }}{% endblock %}</title>
+    <link rel="icon" href="{{ path('views/lib/img/shopify-bag.png') }}"/>
+
+    {% block stylesheets %}
+        <!-- Bootstrap Core CSS -->
+        <link href="{{ path('views/lib/bower_components/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet" />
+        <link href="{{ path('views/lib/bower_components/bootstrap-material-design/dist/css/bootstrap-material-design.min.css') }}" rel="stylesheet" />
+        <link href="{{ path('views/lib/bower_components/bootstrap-material-design/dist/css/ripples.min.css') }}" rel="stylesheet" />
+
+        <!-- Custom Fonts -->
+        <link href="{{ path('views/lib/bower_components/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet">
+        <link rel="stylesheet" href="{{ path('views/lib/css/personnal.css') }}"/>
+        <link rel="stylesheet" href="{{ path('views/lib/css/jquery-ui.min.css') }}"/>
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+        <style>
+            select {
+                cursor: pointer;
+            }
+        </style>
+    {% endblock %}
+
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="{{ path('') }}">NSANGU</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li><a href="{{ path('') }}"><span class="fa fa-home fa-fw"></span> Accueil</a></li>
+                <li><a href="drivers.php">Politique</a></li>
+                <li><a href="stocks.php">Science</a></li>
+                <li><a href="destinations.php">Religion</a></li>
+                <li><a href="destinations.php">Culture générale</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="row" style="margin-top: 50px;">
+        <div class="col-md-2">
+            <h4 class="page-header" style="margin-top:0px;">Toutes les publications</h4>
+        </div>
+        {% block body %}
+
+        {% endblock %}
+    </div>
+</div>
+
+
+<!-- /#wrapper -->
+
+<div class="modal fade" id="ntpModal" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content"></div>
+    </div>
+</div>
+
+{% block javascripts %}
+    <!-- jQuery -->
+    <script src="{{ path('views/lib/bower_components/jquery/dist/jquery.min.js') }}"></script>
+    <script src="{{ path('views/lib/js/jquery-ui.min.js') }}"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="{{ path('views/lib/bower_components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
+    <script src="{{ path('views/lib/bower_components/bootstrap-material-design/dist/js/material.min.js') }}"></script>
+    <script src="{{ path('views/lib/bower_components/bootstrap-material-design/dist/js/ripples.min.js') }}"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="{{ path('views/lib/js/application.js') }}"></script>
+    <script src="{{ path('views/lib/js/jquery.datetimepicker.full.min.js') }}"></script>
+    <script src="{{ path('views/lib/js/personal.js') }}"></script>
+
+    <script>
+        $.material.init();
+        window.onpopstate = function (e) {
+            if (e.state) {
+                document.getElementById("content").innerHTML = e.state;
+                //document.title = e.state.pageTitle;
+            }
+        };
+        $('body').on('hidden.bs.modal', '.modal', function () {
+            $(this).removeData('bs.modal');
+        });
+    </script>
+{% endblock %}
+
+</body>
+
+</html>
+{# empty Twig template #}

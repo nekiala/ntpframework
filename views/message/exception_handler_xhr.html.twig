@@ -1,0 +1,13 @@
+<div class="row">
+    <div class="page-header">
+        <h2><span class="fa fa-exclamation-triangle fa-fw"></span> Une erreur est survenue{{ loader()|raw }}</h2>
+    </div>
+
+    <p>L'action que vous venez d'initier vient de génerer une erreur dont le message est le suivant :</p>
+
+    <div class="alert alert-info">
+        <blockquote>
+            <p>{{ message }}</p>
+        </blockquote>
+    </div>
+</div>

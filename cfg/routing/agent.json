@@ -1,0 +1,90 @@
+{
+  "controller": "agent",
+  "session": false,
+  "roles": ["anonyme"],
+  "routes": {
+    "list": {
+      "url": "list",
+      "action": "list"
+    },
+    "create": {
+      "url": "create"
+    },
+    "list_refreshed": {
+      "url": "lists"
+    },
+    "delete": {
+      "url": "delete/id",
+      "args": {
+        "id": "(.){9,}"
+      }
+    },
+    "edit": {
+      "url": "edit/id",
+      "args": {
+        "id": "(.){9,}"
+      }
+    },
+    "show": {
+      "url": "show/id",
+      "args": {
+        "id": "(.){9,}"
+      }
+    },
+    "print": {
+      "url": "print"
+    },
+    "department": {
+      "url": "department/id",
+      "args": {
+        "id": "(.){9,}"
+      }
+    },
+    "print_one": {
+      "url": "one/id",
+      "args": {
+        "id": "(.){9,}"
+      }
+    },
+    "new_url": {
+      "url": "list/id/:b",
+      "action": "list",
+      "args": {
+        ":b": "(.){9,}"
+      }
+    },
+    "new_url_with_params": {
+      "url": "list/id/:b/:c",
+      "action": "listing",
+      "args": {
+        "b": "(.){9,}",
+        "c": "(.){9,}"
+      }
+    },
+    "home": {
+      "url": "/",
+      "action": "listed",
+      "args": {
+        "as": "(.){9,}"
+      }
+    },
+    "theater_show": {
+      "url": "theater/:id",
+      "action": "show",
+      "args": {
+        "id": "(.){1,}"
+      }
+    },
+    "theater_edit": {
+      "url": "theater/edit/:id",
+      "action": "edit",
+      "args": {
+        "id": "(.){1,}"
+      }
+    },
+    "theater": {
+      "url": "theater",
+      "action": "theater"
+    }
+  }
+}

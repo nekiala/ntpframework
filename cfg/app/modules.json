@@ -1,0 +1,23 @@
+{
+  "main": {
+    "controller": "default",
+    "roles": [
+      "anonyme"
+    ],
+    "routes": {
+      "home": {
+        "url": "main",
+        "action": "main"
+      },
+      "help": {
+        "url": "help"
+      },
+      "about": {
+        "url": "about"
+      }
+    }
+  },
+  "agent": {
+    "file": "agent.json"
+  }
+}

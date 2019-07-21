@@ -1,0 +1,28 @@
+{
+  "services": {
+    "serv.auth" : {
+      "class": "Authnumber"
+    },
+    "serv.file": {
+      "class": "File"
+    },
+    "serv.url": {
+      "class": "URL"
+    },
+    "serv.menu": {
+      "class": "MenuService"
+    },
+    "serv.ping": {
+      "class": "Ping"
+    },
+    "serv.code_master": {
+      "class": "CodeMaster"
+    },
+    "serv.pdf": {
+      "class": "Prince"
+    },
+    "serv.pdf2": {
+      "class": "HtmltoPDF"
+    }
+  }
+}

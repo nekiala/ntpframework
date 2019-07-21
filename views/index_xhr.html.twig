@@ -1,0 +1,62 @@
+<div class="col-md-8">
+    <div class="well">
+        <p class="text-warning h4" style="margin-top:0px;">
+            NSANGU est un site de publications d'actualités dans plusieurs catégories,
+            dont la polique, la science, la réligion, et la culture générale en
+            République démocratique du Congo.
+        </p>
+    </div>
+    <hr />
+
+    <div class="row">
+        <div class="col-sm-4 col-md-4">
+            <div class="thumbnail">
+                <div class="caption">
+                    <img src="{{ path('views/lib/img/silver.jpg') }}" class="img-responsive" />
+                    <h4 style="margin-top: 0px" class="text-justify">Les conducteurs des gros camions du Kongo Central sont en grève</h4>
+
+                    <p>Gérer les informations sur les chaffeurs, ainsi que les informations du véhicule.</p>
+                    <p>
+                        <a class="btn btn-success btn-raised" href="treatment/stocks.php"><span class="fa fa-hand-o-right fa-fw"></span> Afficher</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4 col-md-4">
+            <div class="thumbnail">
+                <div class="caption">
+                    <img src="{{ path('views/lib/img/silver.jpg') }}" class="img-responsive" />
+                    <h4 style="margin-top: 0px">Stocks</h4>
+
+                    <p>Gérer les stocks, affichez les détails, et associez les stocks aux chauffeurs</p>
+                    <p>
+                        <a class="btn btn-success btn-raised" href="treatment/stocks.php"><span class="fa fa-hand-o-right fa-fw"></span> Afficher</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4 col-md-4">
+            <div class="thumbnail">
+                <div class="caption">
+                    <img src="{{ path('views/lib/img/silver.jpg') }}" class="img-responsive" />
+                    <h4 style="margin-top: 0px">Destinations</h4>
+
+                    <p>Gérer les destinations et associez des routes à ces destinations.</p>
+                    <p>
+                        <a class="btn btn-success btn-raised" href="treatment/stocks.php"><span class="fa fa-hand-o-right fa-fw"></span> Afficher</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            {{ url('agent_new_url_with_params', {b: url.transformToStr(9), c: url.transformToStr(9)}) }}<br />
+            {{ url('agent_home', {as: url.transformToStr(9)}) }}
+        </div>
+    </div>
+</div>
+<div class="col-md-2">
+    <h4 class="page-header" style="margin-top:0px;">Annonces et publicité</h4>
+
+</div>

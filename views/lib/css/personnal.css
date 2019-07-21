@@ -1,0 +1,31 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 20 avr. 2015, 13:56:39
+    Author     : Kiala
+*/
+
+.loader {
+    visibility: hidden;
+}
+
+.drag, .dragc, .draggable {
+    cursor: move
+}
+
+.drag.over, .dragc.over, .draggable.over {
+  border: 2px dashed #000;
+}
+
+[draggable] {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  /* Required to make elements draggable in old WebKit */
+  -khtml-user-drag: element;
+  -webkit-user-drag: element;
+}
