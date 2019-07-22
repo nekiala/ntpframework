@@ -460,11 +460,26 @@ KIALA;
         return $this->notifyException($message);
     }
 
-    public function notifyAuthorizationInsufficientForWriteXHR()
+    public final function notifyAuthorizationInsufficientForWriteXHR()
     {
         $message = "Vous n'avez pas l'autirisation de créer ce contenu.
         Veuillez contacter votre administrateur";
 
         return $this->notifyException($message, true);
+    }
+
+    protected function getLocale()
+    {
+        return $this->getSession()->get("locale");
+    }
+
+    protected function setLocale($locale)
+    {
+        $this->getSession()->save("locale", $locale);
+    }
+
+    public final function getDefaultLang()
+    {
+        return $_SERVER["HTTP_ACCEPT_LANGUAGE"];
     }
 }
