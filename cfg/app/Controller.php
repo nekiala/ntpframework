@@ -5,7 +5,6 @@ namespace cfg\app;
 use cfg\app\db\Connector;
 use cfg\app\db\DBInterface;
 use cfg\app\observers\LogHandler;
-use cfg\app\services\Prince;
 //use cfg\app\services\Wkhtmltopdf;
 
 class Controller extends Application {
@@ -13,6 +12,7 @@ class Controller extends Application {
     private static $connector = null;
     protected $response;
     protected $log;
+    protected $url;
 
     /**
      * @var object
@@ -27,6 +27,8 @@ class Controller extends Application {
         if (!is_null($manager)) {
             $this->manager = $this->getManager($manager);
         }
+
+        $this->url = $this->get("serv.url");
     }
 
     /**
@@ -56,6 +58,11 @@ class Controller extends Application {
         if (is_null($manager) && $this->manager != null) {
 
             return $this->manager;
+        }
+
+        if (strpos($manager, "\\")) {
+
+            $manager = ucfirst(substr($manager, strpos($manager, "\\") + 1));
         }
 
         return $this->getConnector()->getManager(str_replace("models\\", "", $manager));
@@ -100,7 +107,7 @@ class Controller extends Application {
             return new $controller_class_name();
         }
 
-        throw new \Exception("Class not found");
+        die("Class not² found");
     }
 
     public function getUserRole() {
@@ -109,10 +116,16 @@ class Controller extends Application {
         $user = $session->decode();
         $role = unserialize($session->get('usr_roles'));
 
-        $user_role = $this->getManager('UserRole')->findWithClause(array(
-            'user_id' => $user->getId(), 'role_id' => $role->getId()
-        ), "AND");
-        
+        try {
+            $user_role = $this->getManager('UserRole')->findWithClause(array(
+                'user_id' => $user->getId(), 'role_id' => $role->getId()
+            ), "AND");
+
+        } catch (\Exception $e) {
+
+            die($e->getMessage());
+        }
+
         return $user_role;
     }
 
@@ -138,17 +151,47 @@ class Controller extends Application {
 
     protected function getNumberFromURLString($str) {
 
-        return $this->get("serv.url")->transformToNumber($str);
+        try {
+            return $this->get("serv.url")->transformToNumber($str);
+        } catch (\Exception $e) {
+
+            die($e->getMessage());
+        }
     }
 
     protected function getStringFromURLNumber($num) {
 
-        return $this->get("serv.url")->transformToStr($num);
+        try {
+            return $this->get("serv.url")->transformToStr($num);
+        } catch (\Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
+    protected function decodeUrl($str)
+    {
+        try {
+            return $this->get("serv.url")->decodeUrl($str);
+        } catch (\Exception $e) {
+
+            die($e->getMessage());
+        }
+    }
+
+    protected function encodeUrl($str)
+    {
+        try {
+            return $this->get("serv.url")->encodeUrl($str);
+        } catch (\Exception $e) {
+
+            die($e->getMessage());
+        }
     }
 
     /**
      * @param $id
      * @return mixed
+     * @throws \Exception
      */
     public function findUser($id) {
 
@@ -216,67 +259,6 @@ class Controller extends Application {
         return $this->request->isXHR();
     }
 
-    protected function getPDF() {
-        $prince = new Prince("C:\prince-10r5-win32\bin\prince.exe");
-
-        return $prince;
-    }
-
-    protected function printPDF($file_string, $filename) {
-
-        $prince = $this->getPDF();
-
-        $msg = array();
-
-        $filename_html = $filename . ".html";
-        $filename_pdf = $filename . ".pdf";
-
-        $file_o = fopen($filename_html, "w+");
-        fclose($file_o);
-        file_put_contents($filename_html, $file_string);
-
-        header("Content-Type: application/pdf");
-        header('Content-Disposition: attachment; filename=' . time() . "_". $filename_pdf);
-
-        $prince->setPDFAuthor("NtoProg");
-        $prince->setPDFTitle($filename);
-        $prince->setHTML("html");
-        $prince->setJavaScript(true);
-        $prince->setHttpUser("admin");
-        $prince->setHttpPassword("secret");
-
-        $prince->convert_file($filename_html, $msg);
-
-        unlink($filename_html);
-
-        readfile($filename_pdf);
-
-        unlink($filename_pdf);
-    }
-
-    /*public function pdfPrint($file_string, $filename) {
-
-        $filename_html = $filename . ".html";
-        $filename_pdf = $filename . ".pdf";
-
-        /*$file_o = fopen($filename_html, "w+");
-        fclose($file_o);
-        file_put_contents($filename_html, $file_string);
-
-        try {
-            $html_to_pdf = new Wkhtmltopdf(array('path' => 'C:\xampp\htdocs\Garage\views\storage'));
-
-            $html_to_pdf->setTitle($filename);
-            $html_to_pdf->setHtml($file_string);
-            $html_to_pdf->output(Wkhtmltopdf::MODE_DOWNLOAD, $filename_pdf);
-            
-        } catch (\Exception $e) {
-
-            die ($e->getMessage());
-        }
-    }*/
-
-
     protected function explodeParameter($param, $delimiter = "_", $return = 1)
     {
 
@@ -312,7 +294,13 @@ class Controller extends Application {
     }
 
     protected final function uploadParameterFile($filename) {
-        $file = $this->get("serv.file");
+        try {
+            $file = $this->get("serv.file");
+
+        } catch (\Exception $e) {
+
+            die($e->getMessage());
+        }
 
         return $file->upload($filename);
     }
@@ -322,10 +310,161 @@ class Controller extends Application {
         return $this->pView("message:page_not_found.html.twig");
     }
 
+    /**
+     * @param $message
+     * @param bool $xhr
+     * @return string
+     */
+    private function notifyException($message, $xhr = false)
+    {
+        if (!$xhr) {
+
+            return $this->render($this->pView("message:exception_handler.html.twig"), [
+                "message" => $message
+            ]);
+
+        }
+
+        return $this->render("message:exception_handler.html.twig", [
+            "message" => $message
+        ]);
+    }
+
+    public function notifyPageNotExist()
+    {
+        $message = "Cette page n'existe pas ou est indisponible pour l'instant.";
+
+        return $this->notifyException($message);
+    }
+
+    public function checkSystemEnabled()
+    {
+        $session = $this->getSession();
+        $user = $session->decode();
+
+        if (!$system_id = $user->getSystem()->getId()) {
+
+            return false;
+        }
+
+        return $system_id;
+    }
+
+    public function notifySystemDisabled()
+    {
+        $message = "Votre licence est expirée ou soit elle n'a pas été activée.";
+
+        return $this->notifyException($message);
+    }
+
     protected function pdfLink()
     {
         $system_files = json_decode(file_get_contents(Application::$system_files->getApplicationFile()), true);
 
         return $system_files['pdf_url'];
+    }
+
+    public final function getPCName()
+    {
+        $ip = getenv("HTTP_CLIENT_IP") ?:
+            getenv("HTTP_X_FORWARDED_FOR")?:
+                getenv("HTTP_FORWARDED_FOR")?:
+                    getenv("HTTP_FORWARDED_FOR") ?:
+                        getenv("HTTP_FORWARDED")?:
+                            getenv("REMOTE_ADDR");
+
+        return gethostbyaddr($ip);
+    }
+
+    public function prepareXmlHeader()
+    {
+        $str = <<<KIALA
+<?xml version="1.0" encoding="UTF-8" ?>
+KIALA;
+        return $str;
+    }
+
+    public final function roleDeletable()
+    {
+        return $this->get("Session")->role()->isDeletable();
+    }
+
+    public final function roleWritable()
+    {
+        return $this->get("Session")->role()->isWritable();
+    }
+
+    public final function roleEditable()
+    {
+        return $this->get("Session")->role()->isEditable();
+    }
+
+    public final function roleReadable()
+    {
+        return $this->get("Session")->role()->isReadable();
+    }
+
+    public function notifyAuthorizationInsufficientForRead()
+    {
+        $message = "Vous n'avez pas l'autirisation de lire ce contenu.
+        Veuillez contacter votre administrateur";
+
+        return $this->notifyException($message);
+    }
+
+    public function notifyAuthorizationInsufficientForReadXHR()
+    {
+        $message = "Vous n'avez pas l'autirisation de lire ce contenu.
+        Veuillez contacter votre administrateur";
+
+        return $this->notifyException($message, true);
+    }
+
+    public function notifyAuthorizationInsufficientForDelete()
+    {
+        $message = "Vous n'avez pas l'autirisation de supprimer ce contenu.
+        Veuillez contacter votre administrateur";
+
+        return $this->notifyException($message);
+    }
+
+    public function notifyAuthorizationInsufficientForDeleteXHR()
+    {
+        $message = "Vous n'avez pas l'autirisation de supprimer ce contenu.
+        Veuillez contacter votre administrateur";
+
+        return $this->notifyException($message, true);
+    }
+
+    public function notifyAuthorizationInsufficientForEdit()
+    {
+        $message = "Vous n'avez pas l'autirisation de modifier ce contenu.
+        Veuillez contacter votre administrateur";
+
+        return $this->notifyException($message);
+    }
+
+    public function notifyAuthorizationInsufficientForEditXHR()
+    {
+        $message = "Vous n'avez pas l'autirisation de modifier ce contenu.
+        Veuillez contacter votre administrateur";
+
+        return $this->notifyException($message, true);
+    }
+
+    public function notifyAuthorizationInsufficientForWrite()
+    {
+        $message = "Vous n'avez pas l'autirisation de créer ce contenu.
+        Veuillez contacter votre administrateur";
+
+        return $this->notifyException($message);
+    }
+
+    public function notifyAuthorizationInsufficientForWriteXHR()
+    {
+        $message = "Vous n'avez pas l'autirisation de créer ce contenu.
+        Veuillez contacter votre administrateur";
+
+        return $this->notifyException($message, true);
     }
 }

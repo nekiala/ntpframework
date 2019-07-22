@@ -4,6 +4,7 @@ namespace cfg\app;
 
 use cfg\app\observers\LogHandler;
 use cfg\app\observers\WriteLog;
+use cfg\app\services\Session;
 use cfg\SystemFiles;
 
 class Application
@@ -212,12 +213,10 @@ class Application
      *
      * @param string $service le service qu'on souhaite récupérer
      * @return Object
-     * @throws \Exception
      */
     public function get($service = "session")
     {
 
-        //$json = file_get_contents(self::SVC_DESCRIPTOR);
         $json = file_get_contents(self::$system_files->getServiceDescriptorFile());
 
         $file = json_decode($json, 1);
@@ -226,12 +225,10 @@ class Application
 
         if (array_key_exists($service, $services)) {
 
-            //$class_name = $this->revertDir(self::SVC_DIR . $services[$service]["class"]);
             $class_name = $this->revertDir(self::$system_files->getServicesNamespace() . $services[$service]["class"]);
 
         } else {
 
-            //$class_name = $this->revertDir(self::SVC_DIR . ucfirst($service));
             $class_name = $this->revertDir(self::$system_files->getServicesNamespace() . ucfirst($service));
         }
 
@@ -239,7 +236,7 @@ class Application
             $this->service = new $class_name;
         } else {
             var_dump($services);
-            throw new \RuntimeException("Impossible de retrouver ce service ");
+            die("Impossible de retrouver ce service ");
         }
 
         return $this->service;
@@ -252,7 +249,7 @@ class Application
     }
 
     /**
-     * @return Object
+     * @return Session|object
      */
     public function getSession()
     {

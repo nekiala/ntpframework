@@ -682,7 +682,6 @@ class SimpleMySQLQuery extends Connector
      * retourne les propriétés de l'objet en paramètres
      * @param $object
      * @return \ReflectionProperty[]
-     * @throws \ReflectionException
      */
     private function getProperties($object)
     {

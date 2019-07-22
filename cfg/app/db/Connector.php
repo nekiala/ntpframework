@@ -34,8 +34,7 @@ class Connector {
     /**
      * 
      * @param string $manager la classe à rechercher
-     * @return DBInterface $manager le manager de la classe
-     * @throws \Exception
+     * @return DBInterface|object $manager le manager de la classe
      */
     public function getManager($manager) {
 
@@ -47,7 +46,7 @@ class Connector {
             
         } else {
 
-            throw new \RuntimeException("Le Manager " . $manager . " n'existe pas.");
+            die("Le Manager " . $manager . " n'existe pas.");
         }
 
         return $this->manager;
