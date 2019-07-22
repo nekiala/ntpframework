@@ -56,6 +56,11 @@ class Timing {
             $jour = (preg_match("#^0#", $day_of_week)) ? substr($day_of_week, 1) : $day_of_week;
             $mois = (preg_match("#^0#", $date_date_month)) ? substr($date_date_month, 1) : $date_date_month;
 
+            if (strstr($date_time, ".")) {
+
+                $date_time = substr($date_time, 0, strpos($date_time, ".")); // 22/07/2019
+            }
+
             if (preg_match("#^[0]{4}(-[0]{2}){2}( (.+))?$#", $date) || preg_match("#^([0]{2}-){2}[0]{4}( (.+))?$#", $date)) {
 
                 $out = '-';
