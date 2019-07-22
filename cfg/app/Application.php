@@ -176,7 +176,7 @@ class Application
 
         try {
             $session = $this->get('session');
-        } catch (\RuntimeException $e) {
+        } catch (\Exception $e) {
             die($e->getMessage());
         }
 
@@ -196,7 +196,7 @@ class Application
         return $this->name;
     }
 
-    public static function getLevelParam($parent, $muana)
+    public static function getLevelParam($parent, $child)
     {
         //$json = file_get_contents(self::APP_FILE);
         $json = file_get_contents(self::$system_files->getApplicationFile());
@@ -205,7 +205,7 @@ class Application
 
         $content = $file[$parent];
 
-        return $content[$muana];
+        return $content[$child];
     }
 
     /**
@@ -214,7 +214,7 @@ class Application
      * @param string $service le service qu'on souhaite récupérer
      * @return Object
      */
-    public function get($service = "session")
+    public function get($service = "Session")
     {
 
         $json = file_get_contents(self::$system_files->getServiceDescriptorFile());
