@@ -13,7 +13,6 @@ class Session {
 
     const ERASE_MODE = 1;
     const NO_ERASE = 2;
-    private $flash = "";
 
     /**
      * @return string
@@ -45,8 +44,8 @@ class Session {
      * @return string
      */
     public function get($cle) {
-        if (isset($_SESSION[$cle]) && !empty($_SESSION[$cle])) {
-            return $_SESSION[$cle];
+        if (isset($_SESSION[self::getAppName()][$cle]) && !empty($_SESSION[self::getAppName()][$cle])) {
+            return $_SESSION[self::getAppName()][$cle];
         } else {
             return FALSE;
         }
@@ -75,9 +74,19 @@ class Session {
         return $this->get(Application::FORM_TOKEN_NAME);
     }
 
+    public static function getAppName()
+    {
+        $application = json_decode(file_get_contents(Application::$system_files->getApplicationFile(), 1));
+        $config_section = $application["application_cfg"];
+        $app_name = isset($config_section["root"]) ? str_replace("/", "", $config_section["root"]) : str_shuffle(time());
+
+
+        return $app_name;
+    }
+
     public function start() {
 
-        if (!isset($_SESSION)) {
+        if (!isset($_SESSION[self::getAppName()])) {
             session_start();
             return $this;
         }
@@ -86,7 +95,7 @@ class Session {
     public function destroy() {
 
         $this->start();
-        $_SESSION = array();
+        $_SESSION[self::getAppName()] = array();
 
         if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
@@ -100,16 +109,16 @@ class Session {
 
         if ($cle = $this->get($key)) {
 
-            unset($_SESSION[$key]);
+            unset($_SESSION[self::getAppName()][$key]);
         }
     }
 
     public function save($key, $value, $mode = self::ERASE_MODE) {
 
         if ($mode == self::ERASE_MODE) {
-            $_SESSION[$key] = $value;
+            $_SESSION[self::getAppName()][$key] = $value;
         } else {
-            $_SESSION[$key] .= $value;
+            $_SESSION[self::getAppName()][$key] .= $value;
         }
     }
 
@@ -140,21 +149,8 @@ class Session {
 
         $user = $this->decode();
 
-        if ($user->getDepot()->getName()) {
-            return $user->getDepot()->getName();
-        } elseif ($user->getShop()->getName()) {
-            return $user->getShop()->getName();
-        }
-
         return $user->getSystem()->getShortName();
     }
-
-    /*
-    public function role() {
-
-        $detail = $this->decode();
-        return $detail->getRole();
-    }*/
 
     public function usr() {
         $detail = $this->decode();
