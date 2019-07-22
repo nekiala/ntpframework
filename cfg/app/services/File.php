@@ -14,6 +14,7 @@ use cfg\app\Application;
  * Description of File
  *
  * @author Kiala
+ * @version 2
  */
 class File
 {
@@ -60,10 +61,14 @@ class File
 
     public function generateName($filename)
     {
+        return sha1(strtolower($filename));
+    }
 
+    public function formatName($filename)
+    {
         $file = strtolower($filename);
 
-        return str_shuffle(time()) . '_' . substr($file, 0, (strlen($file) / 2));
+        return str_shuffle(time() . '_' . $file);
     }
 
     /**
@@ -75,7 +80,12 @@ class File
     public function fileGenerated($key)
     {
 
-        return $this->generateName($this->replacements($this->getFilename($key))) . '.' . $this->getExtension($key);
+        return $this->generateName($this->getTemp($key)) . '.' . $this->getExtension($key);
+    }
+
+    public function normalFileGenerated($key)
+    {
+        return $this->formatName($this->replacements($this->getFilename($key)));
     }
 
     /**
@@ -159,7 +169,7 @@ class File
      * @param string $filename
      * @return int
      */
-    public function getFilesize($filename)
+    public function getFileSize($filename)
     {
 
         return filesize($filename);
