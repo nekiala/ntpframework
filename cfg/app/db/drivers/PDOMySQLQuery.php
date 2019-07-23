@@ -53,6 +53,7 @@ final class PDOMySQLQuery extends Connector
      *
      * @param null $_class
      * @return string le nom de la table
+     * @throws \ReflectionException
      */
     public function getTableName($_class = null)
     {
@@ -84,11 +85,11 @@ final class PDOMySQLQuery extends Connector
 
         $status = 0;
 
-        $req = $this->driver->prepare("SELECT {$column_id} FROM " . $this->getTableName() ." WHERE ({$column_name} = ?)");
-        $req->execute(array($code));
-        if ($req->rowCount()) $status = 1;
+        $statement = $this->driver->prepare("SELECT {$column_id} FROM " . $this->getTableName() ." WHERE ({$column_name} = ?)");
+        $statement->execute(array($code));
+        if ($statement->rowCount()) $status = 1;
 
-        $req->closeCursor();
+        $statement->closeCursor();
 
         return $status;
     }
@@ -97,6 +98,7 @@ final class PDOMySQLQuery extends Connector
      * Return table view
      *
      * @return string le nom de la view
+     * @throws \ReflectionException
      */
     protected function getViewName()
     {
@@ -116,6 +118,10 @@ final class PDOMySQLQuery extends Connector
         return null;
     }
 
+    /**
+     * @return \ReflectionAnnotatedClass
+     * @throws \ReflectionException
+     */
     private function getClass()
     {
 
@@ -151,7 +157,7 @@ final class PDOMySQLQuery extends Connector
             }
         }
 
-        throw new \Exception("La table <b>{$table_name}</b> n'existe pas.");
+        throw new \Exception("The table <b>{$table_name}</b> doesn't exist.");
     }
 
     /**
@@ -159,7 +165,7 @@ final class PDOMySQLQuery extends Connector
      *
      * @param int $id
      * @return object|null
-     * @throws \RuntimeException
+     * @throws \Exception
      */
     public function find($id)
     {
@@ -170,12 +176,12 @@ final class PDOMySQLQuery extends Connector
         //par défaut le nom de la colonne est id
         $column_id = $this->getTableColumnId();
 
-        $req = $this->driver->prepare("SELECT * FROM {$table} WHERE ($column_id = ?)");
-        $req->execute(array($id));
+        $stmt = $this->driver->prepare("SELECT * FROM {$table} WHERE ($column_id = ?)");
+        $stmt->execute(array($id));
 
-        if ($req->rowCount()) {
+        if ($stmt->rowCount()) {
 
-            return $this->populate($req);
+            return $this->populate($stmt);
         } else {
 
             return null;
@@ -185,6 +191,7 @@ final class PDOMySQLQuery extends Connector
     /**
      * Retourne l'identifiant de la table. Par défaut id
      * @return string identifiant de la table
+     * @throws \ReflectionException
      */
     protected function getTableColumnId()
     {
@@ -219,6 +226,7 @@ final class PDOMySQLQuery extends Connector
     /**
      * Retourne l'identifiant de la table. Par défaut id
      * @return array identifiant de la table, ainsi que sa value
+     * @throws \ReflectionException
      */
     protected function getTableColumnIdAndPropertyValue()
     {
@@ -256,17 +264,17 @@ final class PDOMySQLQuery extends Connector
      * retourne toutes les lignes de la table
      *
      * @return mixed
-     * @throws \RuntimeException
+     * @throws \Exception
      */
     public function findAll()
     {
 
-        $req = $this->driver->prepare("SELECT * FROM " . $this->tableName());
-        $req->execute();
+        $stmt = $this->driver->prepare("SELECT * FROM " . $this->tableName());
+        $stmt->execute();
 
-        if ($req->rowCount()) {
+        if ($stmt->rowCount()) {
 
-            return $this->populate($req);
+            return $this->populate($stmt);
         } else {
 
             return null;
@@ -359,7 +367,7 @@ final class PDOMySQLQuery extends Connector
      * @param string $class
      * @param array $properties
      * @param bool $skip_relation
-     * @return object
+     * @return object|array
      */
     private function verifyPropertyRelational(\PDOStatement $rows, $class, array $properties, $skip_relation = false)
     {
@@ -389,6 +397,7 @@ final class PDOMySQLQuery extends Connector
      * @param $properties
      * @param bool $skip_relation
      * @return mixed
+     * @throws \ReflectionException
      */
     public function hydrate($class, $row, $properties, $skip_relation = false)
     {
@@ -458,9 +467,25 @@ final class PDOMySQLQuery extends Connector
     }
 
     /**
+     * this method returns all the data that are null
+     * initially added on 27 nov 2018 15:36, included here on 23 jul 2019 11:35 AM
+     * @param string $column_name
+     * @param int $limit
+     * @return object
+     * @throws \ReflectionException
+     */
+    public function getNullValue(string $column_name, int $limit)
+    {
+        $stmt = $this->driver->query("SELECT * FROM " . $this->getTableName() . " WHERE ({$column_name} IS NULL) LIMIT {$limit}");
+
+        return $this->populate($stmt);
+    }
+
+    /**
      * count all the records in the table
      * @param null $table table name
      * @return int
+     * @throws \ReflectionException
      */
     public function getCount($table = null) {
 
@@ -481,12 +506,25 @@ final class PDOMySQLQuery extends Connector
         return $count;
     }
 
-    public function getCountWithParameter($column, array $params) {
+    public function getCountWithParameter($column, array $params, $table_name = null) {
 
         $clause = $this->newClauseConstructor($params, $this->operations[self::OPERATION_AND]);
         $records = 0;
 
-        $table = $this->tableName();
+        if ($table_name) {
+
+            $table = $table_name;
+
+        } else {
+
+            try {
+                $table = $this->tableName();
+
+            } catch (\Exception $e) {
+
+                die($e->getMessage());
+            }
+        }
 
         $req = $this->driver->prepare("SELECT COUNT({$column}) FROM {$table} WHERE {$clause[0]}");
 
@@ -499,13 +537,41 @@ final class PDOMySQLQuery extends Connector
 
     public function getLatest($num, $table = null, $skip_relation = false) {
 
-        $column_id = $this->getTableColumnId();
+        try {
+            $column_id = $this->getTableColumnId();
+        } catch (\ReflectionException $e) {
 
-        $table_name = $this->getTableName();
+            die($e->getMessage());
+        }
+
+        try {
+            $table_name = $this->getTableName();
+        } catch (\ReflectionException $e) {
+
+            die($e->getMessage());
+        }
         $stmt = $this->driver->prepare("SELECT * FROM ". $table_name . " ORDER BY {$column_id} DESC LIMIT " .$num);
         $stmt->execute();
 
         return $this->populate($stmt, $table, $skip_relation);
+    }
+
+    /**
+     * return the last day of a given date
+     * @param $date
+     * @return string
+     */
+    public function getLastDay($date): string
+    {
+        $last_day = null;
+        $stmt = $this->driver->prepare("SELECT LAST_DAY(?) AS lastDay");
+
+        $stmt->execute([$date]);
+        $stmt->bindColumn(1, $last_day);
+        $stmt->fetch(\PDO::FETCH_BOUND);
+        $stmt->close();
+
+        return $last_day;
     }
 
     /**
@@ -602,6 +668,103 @@ final class PDOMySQLQuery extends Connector
         return $records;
     }
 
+    public function getSumWithParameter($column, array $params) {
+
+        $clause = $this->newClauseConstructor($params, $this->operations[self::OPERATION_AND]);
+        $records = 0;
+
+        try {
+            $table = $this->tableName();
+
+        } catch (\Exception $e) {
+
+            die($e->getMessage());
+        }
+
+        $req = $this->driver->prepare("SELECT IFNULL(SUM({$column}), 0) AS a FROM {$table} WHERE {$clause[0]}");
+
+        $req->execute($clause[1]);
+        $req->bindColumn(1, $records);
+        $req->fetch(\PDO::FETCH_BOUND);
+        $req->closeCursor();
+        return $records;
+    }
+
+    /**
+     * return sum record in a table
+     * @date 2016/02/25
+     * @param array $params
+     * @param string $column
+     * @return int
+     * @throws \Exception
+     */
+    public function getAverage($column, array $params) {
+
+        $clause = $this->newClauseConstructor($params, $this->operations[self::OPERATION_AND]);
+        $average = 0;
+
+        $table = $this->tableName();
+
+        $req = $this->driver->prepare("SELECT AVG ({$column}) FROM {$table} WHERE {$clause[0]}");
+
+        //Application::$request_log->setMessage($req->queryString. " " . serialize($clause[1]))->notify();
+
+        $req->execute($clause[1]);
+        $req->bindColumn(1, $average);
+        $req->fetch(\PDO::FETCH_BOUND);
+        $req->closeCursor();
+        return $average;
+    }
+
+    public function getAverageWithParameter($column, array $params, $table_name = null) {
+
+        $clause = $this->newClauseConstructor($params, $this->operations[self::OPERATION_AND]);
+        $average = 0;
+
+        if ($table_name) {
+
+            $table = $table_name;
+
+        } else {
+
+            try {
+                $table = $this->tableName();
+
+            } catch (\Exception $e) {
+
+                die($e->getMessage());
+            }
+        }
+
+        $req = $this->driver->prepare("SELECT IFNULL(AVG({$column}), 0) AS a FROM {$table} WHERE {$clause[0]}");
+
+        $req->execute($clause[1]);
+        $req->bindColumn(1, $average);
+        $req->fetch(\PDO::FETCH_BOUND);
+        $req->closeCursor();
+        return $average;
+    }
+
+    public function doTruncate($table_name = null)
+    {
+        if ($table_name) {
+
+            $table = $table_name;
+
+        } else {
+
+            try {
+                $table = $this->tableName();
+
+            } catch (\Exception $e) {
+
+                die($e->getMessage());
+            }
+        }
+
+        $this->driver->query("TRUNCATE TABLE {$table}");
+    }
+
     /**
      * Retourne la requête se basant sur l'argument $field de cette table
      *
@@ -680,6 +843,7 @@ final class PDOMySQLQuery extends Connector
      * retourne les propriétés de l'objet en paramètres
      * @param $object
      * @return \ReflectionProperty[]
+     * @throws \ReflectionException
      */
     private function getProperties($object)
     {
@@ -697,6 +861,7 @@ final class PDOMySQLQuery extends Connector
     /**
      * persist une entity dans la table specified
      * @param $object
+     * @throws \ReflectionException
      */
     public function persist(&$object)
     {
@@ -740,17 +905,30 @@ final class PDOMySQLQuery extends Connector
 
         if (is_object($object)) {
 
-            $class = $this->getClass();
+            try {
+                $class = $this->getClass();
+            } catch (\ReflectionException $e) {
+
+                die($e->getMessage());
+            }
 
             if ($class->hasAnnotation('Table')) {
 
                 $class_name = Application::$system_files->getModelsNamespace() . $this->getClassName();
 
-                $properties = $this->getProperties($class_name);
+                try {
+                    $properties = $this->getProperties($class_name);
+                } catch (\ReflectionException $e) {
+                    die($e->getMessage());
+                }
 
                 $values = $this->readPropertiesForUpdate($object, $properties, $class_name);
 
-                $column_id = Reverter::doAllRevert($this->getTableColumnId());
+                try {
+                    $column_id = Reverter::doAllRevert($this->getTableColumnId());
+                } catch (\ReflectionException $e) {
+                    die($e->getMessage());
+                }
 
                 $method = "get" . $column_id;
 
@@ -766,22 +944,38 @@ final class PDOMySQLQuery extends Connector
 
         if (is_object($object)) {
 
-            $class = $this->getClass();
+            try {
+                $class = $this->getClass();
+            } catch (\ReflectionException $e) {
+                die($e->getMessage());
+            }
 
             if ($class->hasAnnotation('Table')) {
 
-                $column_detail = $this->getTableColumnIdAndPropertyValue();
+                try {
+                    $column_detail = $this->getTableColumnIdAndPropertyValue();
+                } catch (\ReflectionException $e) {
+                    die($e->getMessage());
+                }
 
                 if ($column_detail[1] != null) {
 
-                    $getter_method = $this->findCorrectMethod($object, $column_detail[1]);
+                    try {
+                        $getter_method = $this->findCorrectMethod($object, $column_detail[1]);
+                    } catch (\Exception $e) {
+                        die($e->getMessage());
+                    }
                     $column_detail[1] = $object->$getter_method();
 
                     $this->ntpSimpleRemove($column_detail, $class->getAnnotation('Table')->value);
                     return;
                 }
 
-                $properties = $this->getProperties(Application::$system_files->getModelsNamespace() . $this->getClassName());
+                try {
+                    $properties = $this->getProperties(Application::$system_files->getModelsNamespace() . $this->getClassName());
+                } catch (\ReflectionException $e) {
+                    die($e->getMessage());
+                }
 
                 $class_name = Application::$system_files->getModelsNamespace() . $this->getClassName();
 
@@ -795,6 +989,24 @@ final class PDOMySQLQuery extends Connector
         return null;
     }
 
+    /**
+     * Removes a block of data with a particular value
+     * @internal $stmt statement
+     * @param $argument string column name and value
+     * @throws \Exception
+     */
+    public function doRemove($argument)
+    {
+        $stmt = $this->driver->prepare("DELETE FROM " . $this->tableName() . " WHERE {$argument['column']} = ?");
+
+        $stmt->execute([$argument['value']]);
+        $stmt->closeCursor();
+    }
+
+    /**
+     * @param $params
+     * @param $table
+     */
     private function ntpRemove($params, $table)
     {
 
@@ -913,7 +1125,12 @@ final class PDOMySQLQuery extends Connector
 
             if (is_object($value)) {
 
-                $annotation = new \ReflectionAnnotatedProperty($class, $property->name);
+                try {
+                    $annotation = new \ReflectionAnnotatedProperty($class, $property->name);
+                } catch (\ReflectionException $e) {
+
+                    die($e->getMessage());
+                }
 
                 if ($annotation->hasAnnotation('Relation')) {
 
@@ -949,7 +1166,12 @@ final class PDOMySQLQuery extends Connector
 
             if (is_object($value)) {
 
-                $annotation = new \ReflectionAnnotatedProperty($class, $property->name);
+                try {
+                    $annotation = new \ReflectionAnnotatedProperty($class, $property->name);
+                } catch (\ReflectionException $e) {
+
+                    die($e->getMessage());
+                }
 
                 if ($annotation->hasAnnotation('Relation')) {
 
@@ -981,6 +1203,7 @@ final class PDOMySQLQuery extends Connector
      * @param object $properties
      * @param $class_name
      * @return array
+     * @throws \ReflectionException
      */
     private function readProperties($object, $properties, $class_name)
     {
@@ -1103,10 +1326,40 @@ final class PDOMySQLQuery extends Connector
     }
 
     /**
+     * this method get the latest code registered to the database
+     * and returns it for a new code generation, 27 nov 2018 12:53
+     * @param string $last_code
+     * @return string|null
+     * @throws \ReflectionException
+     * @version 1.0
+     * @author nekiala
+     */
+    public function getLastCode(string $last_code = "AAA")
+    {
+        $stmt = $this->driver->query("SELECT code FROM " . $this->getTableName() . " WHERE (code IS NOT NULL) ORDER BY code DESC LIMIT 1");
+
+        if (!$stmt->rowCount()) {
+
+            $stmt->closeCursor();
+
+            return $last_code;
+        }
+
+        $code = null;
+
+        $stmt->bindColumn(1, $code);
+        $stmt->fetch(\PDO::FETCH_BOUND);
+        $stmt->closeCursor();
+
+        return $code;
+    }
+
+    /**
      * @param $object object actual object
      * @param $properties array object properties
      * @param $class_name string class name
      * @return array return values
+     * @throws \ReflectionException
      */
     private function readPropertiesForUpdate($object, $properties, $class_name)
     {
@@ -1262,7 +1515,12 @@ final class PDOMySQLQuery extends Connector
 
                 $final_properties[] = $annotation->name;
 
-                $property_tab[] = new \ReflectionAnnotatedProperty(Application::$system_files->getModelsNamespace() . $this->getClassName(), $property->name);
+                try {
+                    $property_tab[] = new \ReflectionAnnotatedProperty(Application::$system_files->getModelsNamespace() . $this->getClassName(), $property->name);
+                } catch (\ReflectionException $e) {
+
+                    die($e->getMessage());
+                }
             }
         }
 
