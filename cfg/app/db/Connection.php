@@ -188,10 +188,10 @@ final class Connection
         $username = $auth_section["user"];
         $password = $auth_section["pwd"];
 
-        $conn = new \mysqli($dsn, $username, $password, $database, $port);
+        $conn = @new \mysqli($dsn, $username, $password, $database, $port);
 
         if ($conn->connect_errno) {
-            echo "Echec lors de la connexion à MySQL : (" . $conn->connect_errno . ") " . $conn->connect_error;
+            echo sprintf("Couldn't connect to MySQL (mysqli driver). <br>Error no: %d<br>Message: %s<br>", $conn->connect_errno, $conn->connect_error);
         }
 
         return $conn;

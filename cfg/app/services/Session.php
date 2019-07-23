@@ -76,7 +76,7 @@ class Session {
 
     public static function getAppName()
     {
-        $application = json_decode(file_get_contents(Application::$system_files->getApplicationFile(), 1));
+        $application = json_decode(file_get_contents(Application::$system_files->getApplicationFile()), 1);
         $config_section = $application["application_cfg"];
         $app_name = isset($config_section["root"]) ? str_replace("/", "", $config_section["root"]) : str_shuffle(time());
 

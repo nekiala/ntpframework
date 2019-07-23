@@ -43,6 +43,11 @@ class NtpQueryManager implements DBInterface
                 break;
         }
 
+        if (gettype($this->database) != 'object') {
+
+            die(sprintf("%s didn't found the correct driver", NtpQueryManager::class));
+        }
+
         $this->driver = $this->database->driver;
 
         $this->database->setActualTable($this);
