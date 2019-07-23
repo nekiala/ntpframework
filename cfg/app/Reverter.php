@@ -22,9 +22,9 @@ class Reverter {
         }
 
 
-        $name_formated = str_replace('_id', '', $name);
+        $name_formatted = str_replace('_id', '', $name);
 
-        $final = str_replace($mathes[1], strtoupper($mathes[1][1]), $name_formated);
+        $final = str_replace($mathes[1], strtoupper($mathes[1][1]), $name_formatted);
 
         if (preg_match('`[a-z]+(_[a-z]{1})(.+)$`i', $final)) {
 
@@ -34,15 +34,15 @@ class Reverter {
         return ucfirst($final);
     }
 
-    public static function doReplacements($tablename) {
+    public static function doReplacements($table_name) {
 
         $matches = range('A', 'Z');
 
         foreach ($matches as $match) {
-            $tablename = str_replace($match, '_' . $match, $tablename);
+            $table_name = str_replace($match, '_' . $match, $table_name);
         }
 
-        return strtolower(trim($tablename, '_'));
+        return strtolower(trim($table_name, '_'));
     }
 
     public static function doAllRevert($name) {
@@ -87,5 +87,49 @@ class Reverter {
         $replace = array("e", "c", "e", "o", "i", "i", "e", "u", "o", "y", "", "a", "e", "_");
 
         return str_replace($match, $replace, $text);
+    }
+
+    public static function customNumberFormat($n, $precision = 3, $divisors = null)
+    {
+        if (!isset($divisors)) {
+
+            $divisors = [
+                pow(1000, 0) => "",
+                pow(1000, 0) => "K", // Thousand
+                pow(1000, 0) => "M", // Million
+                pow(1000, 0) => "B", // Billion
+                pow(1000, 0) => "T", // Trillion
+                pow(1000, 0) => "Qa", // Quadrillion
+                pow(1000, 0) => "QL", // Quintillion
+            ];
+        }
+
+        // loop through each $divisor and find the
+        // lowest amount that matches
+        foreach ($divisors as $divisor => $shorthand) {
+
+            if (abs($n) < ($divisor * 1000)) {
+                // we found a match
+                break;
+            }
+        }
+
+        return number_format($n / $divisor, $precision) . $shorthand;
+    }
+
+    public static function customNumberFormat2($number)
+    {
+        $x = round($number);
+        $x_number_format = number_format($x);
+        $x_array = exp(",", $x_number_format);
+        $x_parts = ["K", "M", "B", "T"];
+        $x_count_parts = count($x_array) - 1;
+
+        if (sizeof($x_array) < 2) return $number;
+
+        $x_display = $x_array[0] . ((int) $x_array[1][0] !== 0 ? "." . $x_array[1][0] : "");
+        $x_display .= $x_parts[$x_count_parts - 1];
+
+        return $x_display;
     }
 }
