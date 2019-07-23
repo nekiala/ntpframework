@@ -80,7 +80,13 @@ final class PDOMySQLQuery extends Connector
     // for code generation
     public function codeExist($code, $column = null) {
 
-        $column_id = $this->getTableColumnId();
+        try {
+            $column_id = $this->getTableColumnId();
+
+        } catch (\ReflectionException $e) {
+
+            die($e->getMessage());
+        }
         $column_name = (is_null($column)) ? "code" : strip_tags(addslashes($column));
 
         $status = 0;
