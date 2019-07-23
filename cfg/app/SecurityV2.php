@@ -9,6 +9,8 @@
 namespace cfg\app;
 
 
+use cfg\app\services\Session;
+
 class SecurityV2
 {
     private $module;
@@ -57,7 +59,9 @@ class SecurityV2
     private function verifySession()
     {
         //vérifie si l'utilisateur est connecté
-        return self::$application->getSession()->get('usr_auth');
+        //return self::$application->getSession()->get('usr_auth');
+
+        return isset($_SESSION[Session::getAppName()]["usr_auth"]);
     }
 
     public static function checkSessionExists()

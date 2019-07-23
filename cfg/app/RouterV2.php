@@ -9,7 +9,9 @@
 namespace cfg\app;
 
 
+use cfg\app\db\Connector;
 use cfg\app\observers\Firewall;
+use cfg\app\services\URL;
 
 class RouterV2
 {
@@ -20,6 +22,13 @@ class RouterV2
     private static $default_dir;
     private static $security;
 
+    /**
+     * @param $route_name
+     * @param null $options
+     * @param string $default_separator
+     * @param null $complete_path
+     * @return bool|string
+     */
     public static function generateURL($route_name, $options = null, $default_separator = "_", $complete_path = null)
     {
 
@@ -72,11 +81,11 @@ class RouterV2
                 return self::createURL($application, $route_name_exploded[0], $route_list[$final_route_name], $options, $complete_path);
             }
 
-            throw new \RuntimeException("Impossible de trouver la route {$route_name}");
+            throw new \RuntimeException("Impossible to find the route {$route_name}");
 
         } else {
 
-            throw new \Exception("Le prefixe {$route_name_exploded[0]} n'existe dans");
+            throw new \RuntimeException("The prefix {$route_name_exploded[0]} doesn't exist");
         }
     }
 
@@ -136,6 +145,12 @@ class RouterV2
         return ($complete_path) ? $complete_path . $application->getSessionDefDir() . $final_url : $application->getSessionDefDir() . $final_url;
     }
 
+    /**
+     * @param $pattern
+     * @param $subject
+     * @return false|int
+     *
+     */
     private static function reGex($pattern, $subject)
     {
 
@@ -388,20 +403,41 @@ class RouterV2
         $class = self::$ctrl_dir . $controller . 'Controller';
         $_action = $action . 'Action';
 
-        // si la classe existe
+        // if the controller class exists
         if (class_exists($class)) {
 
-            $class_ctrl = new \ReflectionClass($class);
+            try {
+
+                $class_ctrl = new \ReflectionClass($class);
+
+            } catch (\ReflectionException $e) {
+
+                Application::$request_log->setMessage($e->getMessage())->notify();
+
+                if (Application::getStage() == Application::STAGE_DEVELOPMENT) {
+
+                    die($e->__toString());
+                }
+
+                die($e->getMessage());
+            }
 
         } else {
 
-            throw new \RuntimeException("Le controlleur {$class} n'existe pas");
+            throw new \RuntimeException("The controller {$class} doesn't exist.");
         }
 
         //if the class has that method
         if ($class_ctrl->hasMethod($_action)) {
 
-            $reflectionMethod = new \ReflectionMethod($class, $_action);
+            try {
+
+                $reflectionMethod = new \ReflectionMethod($class, $_action);
+
+            } catch (\ReflectionException $e) {
+
+                die($e->getMessage());
+            }
 
             $param_count = $reflectionMethod->getNumberOfParameters();
 
@@ -411,26 +447,57 @@ class RouterV2
 
                 if ($param_count > 0 && $param_count == count($parameters)) {
 
-                    echo $reflectionMethod->invokeArgs(new $class, $parameters);
+                    $compose_param = explode("/", $parameters);
+
+                    // if there's only one parameter
+                    if ($param_count == 1) {
+
+                        if (is_object($arguments[0]->getType())) {
+
+                            $connector = new Connector();
+                            $entity_name = $arguments[0]->getName();
+                            $manager_name = ucfirst(substr($entity_name, strpos($entity_name, "\\")));
+                            $user_parameter = $compose_param[0];
+
+                            if (!is_int($user_parameter)) {
+
+                                $urlService = new URL();
+                                $user_parameter = $urlService->transformToNumber($user_parameter);
+
+                            }
+
+                            if (!$requestedParameter = $connector->getManager($manager_name)->find($user_parameter)) {
+
+                                $entity = Application::$system_files->getModelsNamespace() . ucfirst($entity_name);
+                                $requestedParameter = new $entity();
+                            }
+
+                            echo $reflectionMethod->invokeArgs(new $class, [$requestedParameter]);
+
+                        }
+                    } else {
+
+                        echo $reflectionMethod->invokeArgs(new $class, $parameters);
+                    }
 
                 } elseif ($param_count > count($parameters)) {
 
-                    throw new \RuntimeException("La méthode demande {$param_count} parametre(s) : " . implode(', ', $arguments));
+                    throw new \RuntimeException("The action need {$param_count} parameter(s) : " . implode(', ', $arguments));
 
                 } elseif ($param_count == 0 && count($parameters) > 0) {
 
-                    throw new \RuntimeException("La méthode démandée n'a besoin d'aucun paramètre pour fonctionner");
+                    throw new \RuntimeException("The needed action doesn't ask any parameter.");
 
                 } else {
 
-                    throw new \RuntimeException("Vous n'avez pas respecté le nombre de paramètres demandé par cette fonction");
+                    throw new \RuntimeException("You didn't respected the number of parameter asked by this action.");
                 }
 
             } else {
 
                 if (!$parameters && $param_count) {
 
-                    throw new \RuntimeException("La méthode demande {$param_count} parametre(s) : " . implode(', ', $arguments));
+                    throw new \RuntimeException("The action need {$param_count} parameter(s) : " . implode(', ', $arguments));
 
                 } elseif (!$parameters && !$param_count) {
 
@@ -438,7 +505,7 @@ class RouterV2
 
                 } elseif ($parameters && !$param_count) {
 
-                    throw new \RuntimeException("La méthode {$action} du controleur {$controller} ne demande aucun parametre : " . $parameters . " : " . $param_count);
+                    throw new \RuntimeException("The action {$action} of controller {$controller} doesn't require any parameter: " . $parameters . " : " . $param_count);
 
                 } else {
 
@@ -448,7 +515,7 @@ class RouterV2
 
         } else {
 
-            throw new \RuntimeException("La méthode {$_action} n'existe pas.");
+            throw new \RuntimeException("The action {$_action} doesn't exist.");
         }
     }
 
@@ -474,7 +541,7 @@ class RouterV2
 
         try {
 
-            Application::$request_log->setMessage("Génération de lURL " . $route_name)->notify();
+            Application::$request_log->setMessage("URL generation: " . $route_name)->notify();
 
             self::$uri = self::generateURL($route_name, $options);
 

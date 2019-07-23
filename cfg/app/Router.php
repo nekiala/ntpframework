@@ -83,10 +83,12 @@ class Router {
                     }
                 }
 
-                return self::createURL($application, $route_name_exploded[0], $route_list[$final_route_name], $options, $complete_path);
-            }
+                self::createURL($application, $route_name_exploded[0], $route_list[$final_route_name], $options, $complete_path);
 
-            throw new \RuntimeException("Impossible de trouver la route {$route_name}");
+            } else {
+
+                throw new \RuntimeException("Impossible de trouver la route {$route_name}");
+            }
 
         } else {
 
