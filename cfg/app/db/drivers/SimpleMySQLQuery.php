@@ -318,17 +318,27 @@ final class SimpleMySQLQuery extends Connector
 
         //Application::$request_log->setMessage($sql)->notify();
 
-        $stmt = $this->driver->prepare($sql);
-        $stmt->execute($clauses[1]);
+        if ($stmt = $this->driver->prepare($sql)) {
 
-        if ($stmt->rowCount()) {
+            $stmt->bind_param("si", extract($clauses[1]));
 
-            return $this->populate($stmt);
+            $stmt->execute();
+
+            if ($stmt->num_rows) {
+
+                return $this->populate($stmt);
+
+            } else {
+
+                return null;
+            }
 
         } else {
 
-            return null;
+            echo $this->driver->error;
         }
+
+        return null;
     }
 
     /**

@@ -6,17 +6,66 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit76898234e5e6d10667d4d21d24a1b66e
 {
+    public static $files = array (
+        '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
+        '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
+    );
+
     public static $prefixLengthsPsr4 = array (
-        'h' => 
+        'T' => 
         array (
-            'h4cc\\WKHTMLToPDF\\' => 17,
+            'Twig\\' => 5,
+        ),
+        'S' => 
+        array (
+            'Symfony\\Polyfill\\Mbstring\\' => 26,
+            'Symfony\\Polyfill\\Ctype\\' => 23,
+            'Symfony\\Component\\Process\\' => 26,
+        ),
+        'P' => 
+        array (
+            'Psr\\Log\\' => 8,
+        ),
+        'K' => 
+        array (
+            'Knp\\Snappy\\' => 11,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'h4cc\\WKHTMLToPDF\\' => 
+        'Twig\\' => 
         array (
-            0 => __DIR__ . '/..' . '/h4cc/wkhtmltopdf-amd64',
+            0 => __DIR__ . '/..' . '/twig/twig/src',
+        ),
+        'Symfony\\Polyfill\\Mbstring\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/polyfill-mbstring',
+        ),
+        'Symfony\\Polyfill\\Ctype\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/polyfill-ctype',
+        ),
+        'Symfony\\Component\\Process\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/process',
+        ),
+        'Psr\\Log\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
+        ),
+        'Knp\\Snappy\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/knplabs/knp-snappy/src/Knp/Snappy',
+        ),
+    );
+
+    public static $prefixesPsr0 = array (
+        'T' => 
+        array (
+            'Twig_' => 
+            array (
+                0 => __DIR__ . '/..' . '/twig/twig/lib',
+            ),
         ),
     );
 
@@ -25,6 +74,7 @@ class ComposerStaticInit76898234e5e6d10667d4d21d24a1b66e
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit76898234e5e6d10667d4d21d24a1b66e::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit76898234e5e6d10667d4d21d24a1b66e::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit76898234e5e6d10667d4d21d24a1b66e::$prefixesPsr0;
 
         }, null, ClassLoader::class);
     }

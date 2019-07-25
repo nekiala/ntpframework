@@ -191,7 +191,7 @@ final class Connection
         $conn = @new \mysqli($dsn, $username, $password, $database, $port);
 
         if ($conn->connect_errno) {
-            echo sprintf("Couldn't connect to MySQL (mysqli driver). <br>Error no: %d<br>Message: %s<br>", $conn->connect_errno, $conn->connect_error);
+            die(sprintf("Couldn't connect to MySQL (mysqli driver). <br>Error no: %d<br>Message: %s<br>", $conn->connect_errno, $conn->connect_error));
         }
 
         return $conn;
@@ -199,6 +199,7 @@ final class Connection
 
     public final function MariaDB() {
 
+        return $this->MySQL();
     }
 
     public final function PgSQL() {}

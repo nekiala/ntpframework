@@ -17,7 +17,7 @@ require 'vendor/addendum/Annotations.php';
 require 'cfg/app/db/Table.php';
 
 
-class PDOMSSQL extends Connector
+final class PDOMSSQL extends Connector
 {
     const TYPE_ONE = 1;
     const TYPE_ALL = 2;

@@ -12,6 +12,7 @@ namespace cfg\app\db;
 use cfg\app\Application;
 use cfg\app\db\drivers\PDOMSSQL;
 use cfg\app\db\drivers\PDOMySQLQuery;
+use cfg\app\db\drivers\SimpleMySQLQuery;
 use cfg\app\db\drivers\SimpleOracleQuery;
 use cfg\app\Reverter;
 
@@ -40,6 +41,10 @@ class NtpQueryManager implements DBInterface
                 break;
             case Connection::PDO_SQL_SERVER_KEY:
                 $this->database = new PDOMSSQL();
+                break;
+            case Connection::MARIADB_KEY:
+            case Connection::MYSQL_KEY:
+                $this->database = new SimpleMySQLQuery();
                 break;
         }
 

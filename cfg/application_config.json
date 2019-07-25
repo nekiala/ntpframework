@@ -1,1 +1,65 @@
-{"database_config":{"default_config":"mysql","allow_test_database":"true","cfg":{"pdo_mysql":{"com":"mysql:host=localhost:3306;dbname=","dbname":"shop","auth":{"user":"root","pwd":"secret"}},"oracle_oci8":{"com":"localhost/XE","charset":"UTF8","auth":{"schema":"schema","pwd":"secret"}},"pdo_mssql":{"com":"sqlsrv:Server=DESKTOP-DQ4J0IV\\SQLEXPRESS;Database=","database":"back_end_db","auth":{"user":"sa","pwd":"DatabaseSecret1"}},"mysql":{"com":"localhost","port":"3306","database":"database","auth":{"user":"root","pwd":"secret"}}}},"application_cfg":{"name":"Application Name","version":"1.0.0","author":"nekiala","root":"/fw/","comment":"Application comment","cdate":"creation date"},"app":{"default_module":"default","default_action":"main"},"dependency":{"php":"5.6"},"api":{"sms":{"url":"https://api.allmysms.com/http/9.0/sendSms/","login":"nekiala","apiKey":"a2347c65ed97c15","sender":"NtoProg"}},"pdf_url":"http://localhost/pdf"}
+{
+  "database_config": {
+    "default_config": "mysql",
+    "allow_test_database": "true",
+    "cfg": {
+      "pdo_mysql": {
+        "com": "mysql:host=localhost:3306;dbname=",
+        "dbname": "shop",
+        "auth": {
+          "user": "root",
+          "pwd": "secret"
+        }
+      },
+      "oracle_oci8": {
+        "com": "localhost/XE",
+        "charset": "UTF8",
+        "auth": {
+          "schema": "schema",
+          "pwd": "secret"
+        }
+      },
+      "pdo_mssql": {
+        "com": "sqlsrv:Server=DESKTOP-DQ4J0IV\\SQLEXPRESS;Database=",
+        "database": "back_end_db",
+        "auth": {
+          "user": "sa",
+          "pwd": "DatabaseSecret1"
+        }
+      },
+      "mysql": {
+        "com": "localhost",
+        "port": "3306",
+        "database": "test",
+        "auth": {
+          "user": "root",
+          "pwd": "secret"
+        }
+      }
+    }
+  },
+  "application_cfg": {
+    "name": "Application Name",
+    "version": "1.0.0",
+    "author": "nekiala",
+    "root": "/fw/",
+    "comment": "Application comment",
+    "cdate": "creation date"
+  },
+  "app": {
+    "default_module": "default",
+    "default_action": "main"
+  },
+  "dependency": {
+    "php": "5.6"
+  },
+  "api": {
+    "sms": {
+      "url": "https://api.allmysms.com/http/9.0/sendSms/",
+      "login": "nekiala",
+      "apiKey": "a2347c65ed97c15",
+      "sender": "NtoProg"
+    }
+  },
+  "pdf_url": "http://localhost/pdf"
+}

@@ -8,9 +8,6 @@
 
 namespace cfg\app\db\drivers;
 
-require 'vendor/addendum/Annotations.php';
-require 'cfg/app/db/Table.php';
-
 
 use cfg\app\Application;
 use cfg\app\db\Connector;

@@ -5,7 +5,6 @@ namespace cfg\app;
 use cfg\app\db\Connector;
 use cfg\app\db\DBInterface;
 use cfg\app\observers\LogHandler;
-//use cfg\app\services\Wkhtmltopdf;
 
 class Controller extends Application {
 
