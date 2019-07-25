@@ -1459,7 +1459,13 @@ final class SimpleMySQLQuery extends Connector
 
         foreach ($properties as $property) {
 
-            $reflection_annotated = new \ReflectionAnnotatedProperty($class_name, $property->name);
+            try {
+                $reflection_annotated = new \ReflectionAnnotatedProperty($class_name, $property->name);
+
+            } catch (\ReflectionException $e) {
+
+                die ($e->getMessage());
+            }
 
             if ($reflection_annotated->hasAnnotation("Id")) {
 
@@ -1468,9 +1474,7 @@ final class SimpleMySQLQuery extends Connector
 
             try {
 
-                //$value = $this->findMethod($object, $property);
                 $method = $this->findCorrectMethod($object, $property->name);
-                //$bool_method = "is" . Reverter::doRevert($property->name);
             } catch (\Exception $e) {
 
                 die($e->getMessage());

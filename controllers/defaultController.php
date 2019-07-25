@@ -23,14 +23,7 @@ class defaultController extends Controller
     public function mainAction()
     {
 
-        $pages = $this->getManager(Campaign::class)->findFiltered(
-            array("status" => 0), array("type" => "ASC"), "1, 1"
-        );
-
-        echo gettype($pages);
-        //$this->getManager(Campaign::class)->remove($pages);
-
-        return $this->render($this->pView("index.html.twig"), array("pages" => $pages));
+        return $this->render($this->pView("index.html.twig"));
     }
 
     public function aboutAction()
